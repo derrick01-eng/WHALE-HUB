@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whale Hub — Creator Onboarding</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #c8a020;
+      --gold-light: #f5e070;
+      --gold-dark: #8a6000;
+      --black: #080808;
+      --black-2: #0f0f0f;
+      --black-3: #161616;
+      --white: #f0ece0;
+      --white-dim: rgba(240,236,224,0.6);
+    }
+    html, body { height: 100%; background: var(--black); color: var(--white); font-family: 'Crimson Pro', Georgia, serif; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: 0.6; }
+    body::after { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent); z-index: 100; }
+    .container { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; }
+    .header { text-align: center; margin-bottom: 56px; animation: fadeDown 0.8s ease both; }
+    .header-eyebrow { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 5px; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; opacity: 0.8; }
+    .header h1 { font-family: 'Cinzel', serif; font-size: clamp(36px, 6vw, 64px); font-weight: 700; line-height: 1; background: linear-gradient(135deg, var(--gold-dark), var(--gold-light), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 20px; }
+    .header-sub { font-size: 18px; color: var(--white-dim); font-style: italic; font-weight: 300; max-width: 440px; line-height: 1.6; }
+    .divider { width: 180px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 28px auto; }
+    .form-wrapper { width: 100%; max-width: 520px; background: var(--black-2); border: 1px solid rgba(200,160,32,0.25); border-radius: 20px; padding: 48px 40px; position: relative; animation: fadeUp 0.9s 0.2s ease both; box-shadow: 0 0 60px rgba(200,160,32,0.06), 0 0 120px rgba(0,0,0,0.8), inset 0 1px 0 rgba(245,224,112,0.1); }
+    .form-wrapper::before { content: ''; position: absolute; inset: -1px; border-radius: 21px; background: linear-gradient(135deg, rgba(200,160,32,0.4), transparent 40%, rgba(200,160,32,0.2)); z-index: -1; pointer-events: none; }
+    .corner { position: absolute; width: 20px; height: 20px; }
+    .corner::before, .corner::after { content: ''; position: absolute; background: var(--gold); }
+    .corner::before { width: 100%; height: 1.5px; }
+    .corner::after { width: 1.5px; height: 100%; }
+    .corner.tl { top: 12px; left: 12px; }
+    .corner.tr { top: 12px; right: 12px; transform: scaleX(-1); }
+    .corner.bl { bottom: 12px; left: 12px; transform: scaleY(-1); }
+    .corner.br { bottom: 12px; right: 12px; transform: scale(-1); }
+    .field { margin-bottom: 28px; }
+    label { display: block; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; opacity: 0.9; }
+    input[type="text"], select { width: 100%; background: var(--black-3); border: 1px solid rgba(200,160,32,0.2); border-radius: 8px; padding: 14px 18px; color: var(--white); font-family: 'Crimson Pro', serif; font-size: 18px; outline: none; transition: border-color 0.3s, box-shadow 0.3s; }
+    input[type="text"]:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,160,32,0.1); }
+    input[type="text"]::placeholder { color: rgba(240,236,224,0.25); font-style: italic; }
+    select { cursor: pointer; }
+    select option { background: #111; }
+    .upload-area { border: 1.5px dashed rgba(200,160,32,0.3); border-radius: 12px; padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.3s; background: var(--black-3); position: relative; }
+    .upload-area:hover, .upload-area.dragover { border-color: var(--gold); background: rgba(200,160,32,0.04); }
+    .upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+    .upload-text { font-size: 16px; color: var(--white-dim); font-style: italic; }
+    .upload-hint { font-family: 'Space Mono', monospace; font-size: 10px; color: rgba(200,160,32,0.5); margin-top: 8px; letter-spacing: 1px; }
+    .upload-preview { margin-top: 12px; display: none; }
+    .upload-preview img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--gold); }
+    .upload-preview .preview-name { font-size: 13px; color: var(--gold); margin-top: 6px; font-family: 'Space Mono', monospace; }
+    .submit-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light), var(--gold)); background-size: 200% 200%; border: none; border-radius: 10px; font-family: 'Cinzel', serif; font-size: 16px; font-weight: 600; letter-spacing: 3px; color: #1a0e00; cursor: pointer; transition: all 0.4s; margin-top: 8px; }
+    .submit-btn:hover { box-shadow: 0 0 30px rgba(200,160,32,0.4); transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(26,14,0,0.3); border-top-color: #1a0e00; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+    .success-screen { display: none; text-align: center; padding: 20px 0; animation: fadeUp 0.6s ease both; }
+    .success-icon { font-size: 56px; margin-bottom: 20px; display: block; }
+    .success-title { font-family: 'Cinzel', serif; font-size: 28px; color: var(--gold-light); margin-bottom: 12px; }
+    .success-msg { font-size: 17px; color: var(--white-dim); font-style: italic; line-height: 1.7; max-width: 360px; margin: 0 auto; }
+    .success-divider { width: 80px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 24px auto; }
+    .footer { margin-top: 48px; text-align: center; animation: fadeUp 1s 0.4s ease both; }
+    .footer-brand { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 4px; color: rgba(200,160,32,0.4); text-transform: uppercase; }
+    .error-msg { color: #e05050; font-size: 14px; margin-top: 8px; font-family: 'Space Mono', monospace; display: none; }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 560px) { .form-wrapper { padding: 36px 24px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <p class="header-eyebrow">Spout Ecosystem · Cohort 01</p>
+      <h1>Whale Hub</h1>
+      <div class="divider"></div>
+      <p class="header-sub">You've been selected. Complete your creator profile to receive your card.</p>
+    </div>
+    <div class="form-wrapper">
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+      <form id="creatorForm">
+        <div class="field">
+          <label>Your Name</label>
+          <input type="text" id="name" name="name" placeholder="e.g. Derrick" required />
+        </div>
+        <div class="field">
+          <label>X / Twitter Handle</label>
+          <input type="text" id="username" name="username" placeholder="@yourhandle" required />
+        </div>
+        <div class="field">
+          <label>Your Niche</label>
+          <select id="niche" name="niche" required>
+            <option value="" disabled selected>Select your focus area</option>
+            <option value="DeFi / RWA">DeFi / RWA</option>
+            <option value="DeFi / Crypto">DeFi / Crypto</option>
+            <option value="RWA / Tokenization">RWA / Tokenization</option>
+            <option value="Stocks / Equities">Stocks / Equities</option>
+            <option value="Finance / Investing">Finance / Investing</option>
+            <option value="Crypto / Web3">Crypto / Web3</option>
+            <option value="Macro / Economics">Macro / Economics</option>
+            <option value="DeFi / Lending">DeFi / Lending</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Your Character / Avatar</label>
+          <div class="upload-area" id="uploadArea">
+            <input type="file" id="character" name="character" accept="image/*" required />
+            <span class="upload-icon">🐳</span>
+            <p class="upload-text">Drop your character image here</p>
+            <p class="upload-hint">PNG · JPG · WEBP · Max 5MB</p>
+            <div class="upload-preview" id="uploadPreview">
+              <img id="previewImg" src="" alt="preview" />
+              <p class="preview-name" id="previewName"></p>
+            </div>
+          </div>
+        </div>
+        <p class="error-msg" id="errorMsg"></p>
+        <button type="submit" class="submit-btn" id="submitBtn">SUBMIT MY PROFILE</button>
+      </form>
+      <div class="success-screen" id="successScreen">
+        <span class="success-icon">🐋</span>
+        <h2 class="success-title">You're In</h2>
+        <div class="success-divider"></div>
+        <p class="success-msg">Your profile has been received. Your Whale Hub creator card is being prepared. We'll send it to you directly — watch your DMs.</p>
+      </div>
+    </div>
+    <div class="footer">
+      <p class="footer-brand">Whale Hub · Spout Ecosystem · Creator</p>
+    </div>
+  </div>
+  <script>
+    const fileInput = document.getElementById('character');
+    const uploadArea = document.getElementById('uploadArea');
+    const uploadPreview = document.getElementById('uploadPreview');
+    const previewImg = document.getElementById('previewImg');
+    const previewName = document.getElementById('previewName');
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { previewImg.src = ev.target.result; previewName.textContent = file.name; uploadPreview.style.display = 'block'; };
+        reader.readAsDataURL(file);
+      }
+    });
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault(); uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const dt = new DataTransfer(); dt.items.add(file); fileInput.files = dt.files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+    document.getElementById('creatorForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const errorMsg = document.getElementById('errorMsg');
+      errorMsg.style.display = 'none';
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> GENERATING YOUR CARD...';
+      const formData = new FormData(e.target);
+      try {
+        const res = await fetch('/submit', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('creatorForm').style.display = 'none';
+          document.getElementById('successScreen').style.display = 'block';
+        } else { throw new Error(data.error || 'Something went wrong'); }
+      } catch (err) {
+        errorMsg.textContent = err.message; errorMsg.style.display = 'block';
+        btn.disabled = false; btn.innerHTML = 'SUBMIT MY PROFILE';
+      }
+    });
+  </script>
+</body>
+      </html>
