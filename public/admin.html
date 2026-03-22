@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whale Hub — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Space+Mono:wght@400;700&family=Crimson+Pro:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --gold: #c8a020; --gold-light: #f5e070; --black: #080808; --black-2: #0f0f0f; --black-3: #161616; --white: #f0ece0; --white-dim: rgba(240,236,224,0.6); }
+    body { background: var(--black); color: var(--white); font-family: 'Crimson Pro', serif; min-height: 100vh; }
+    body::after { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent); }
+    .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .login-box { background: var(--black-2); border: 1px solid rgba(200,160,32,0.25); border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 400px; text-align: center; }
+    .login-title { font-family: 'Cinzel', serif; font-size: 24px; color: var(--gold); margin-bottom: 8px; }
+    .login-sub { font-size: 14px; color: var(--white-dim); font-style: italic; margin-bottom: 32px; }
+    .login-box input { width: 100%; background: var(--black-3); border: 1px solid rgba(200,160,32,0.2); border-radius: 8px; padding: 14px 18px; color: var(--white); font-family: 'Space Mono', monospace; font-size: 14px; outline: none; text-align: center; letter-spacing: 3px; margin-bottom: 16px; }
+    .login-box input:focus { border-color: var(--gold); }
+    .login-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #8a6000, var(--gold), var(--gold-light)); border: none; border-radius: 8px; font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: 2px; color: #1a0e00; cursor: pointer; font-weight: 600; }
+    .login-btn:hover { opacity: 0.9; }
+    .login-error { color: #e05050; font-size: 13px; margin-top: 12px; font-family: 'Space Mono', monospace; display: none; }
+    .dashboard { display: none; padding: 40px 32px; max-width: 1100px; margin: 0 auto; }
+    .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid rgba(200,160,32,0.2); }
+    .dash-title { font-family: 'Cinzel', serif; font-size: 28px; color: var(--gold); }
+    .dash-subtitle { font-size: 14px; color: var(--white-dim); margin-top: 4px; }
+    .logout-btn { background: transparent; border: 1px solid rgba(200,160,32,0.3); border-radius: 6px; color: var(--gold); font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 2px; padding: 8px 16px; cursor: pointer; }
+    .logout-btn:hover { border-color: var(--gold); background: rgba(200,160,32,0.05); }
+    .stats-row { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+    .stat-card { background: var(--black-2); border: 1px solid rgba(200,160,32,0.15); border-radius: 12px; padding: 20px 24px; flex: 1; min-width: 120px; }
+    .stat-num { font-family: 'Cinzel', serif; font-size: 36px; color: var(--gold-light); }
+    .stat-label { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--white-dim); margin-top: 4px; text-transform: uppercase; }
+    .submissions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .sub-card { background: var(--black-2); border: 1px solid rgba(200,160,32,0.15); border-radius: 12px; overflow: hidden; transition: border-color 0.3s; }
+    .sub-card:hover { border-color: rgba(200,160,32,0.4); }
+    .sub-card-header { padding: 16px 20px; border-bottom: 1px solid rgba(200,160,32,0.1); display: flex; align-items: center; gap: 12px; }
+    .sub-name { font-family: 'Cinzel', serif; font-size: 16px; color: var(--white); }
+    .sub-handle { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--gold); margin-top: 2px; }
+    .sub-card-body { padding: 14px 20px; }
+    .sub-niche { display: inline-block; background: rgba(200,160,32,0.08); border: 1px solid rgba(200,160,32,0.2); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--gold); font-style: italic; margin-bottom: 12px; }
+    .sub-date { font-family: 'Space Mono', monospace; font-size: 10px; color: rgba(240,236,224,0.3); letter-spacing: 1px; }
+    .sub-card-footer { padding: 12px 20px; }
+    .btn-download { width: 100%; padding: 10px; background: linear-gradient(135deg, #8a6000, var(--gold)); border: none; border-radius: 6px; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1px; color: #1a0e00; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+    .btn-download:hover { opacity: 0.85; }
+    .loading-state { text-align: center; padding: 80px 20px; color: var(--white-dim); font-style: italic; }
+    .empty-state { text-align: center; padding: 80px 20px; color: var(--white-dim); }
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state p { font-style: italic; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <div class="login-screen" id="loginScreen">
+    <div class="login-box">
+      <h1 class="login-title">Admin Access</h1>
+      <p class="login-sub">Whale Hub — Spout Ecosystem</p>
+      <input type="password" id="passwordInput" placeholder="Enter password" />
+      <button class="login-btn" onclick="login()">ENTER</button>
+      <p class="login-error" id="loginError">Incorrect password</p>
+    </div>
+  </div>
+  <div class="dashboard" id="dashboard">
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">Creator Submissions</h1>
+        <p class="dash-subtitle">Whale Hub · Cohort 01</p>
+      </div>
+      <button class="logout-btn" onclick="logout()">LOGOUT</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="totalCount">—</div><div class="stat-label">Total Submissions</div></div>
+      <div class="stat-card"><div class="stat-num">50</div><div class="stat-label">Cohort Capacity</div></div>
+      <div class="stat-card"><div class="stat-num" id="remainingCount">—</div><div class="stat-label">Spots Remaining</div></div>
+    </div>
+    <div class="submissions-grid" id="submissionsGrid">
+      <div class="loading-state">Loading submissions...</div>
+    </div>
+  </div>
+  <script>
+    let adminPassword = '';
+    function login() {
+      const pw = document.getElementById('passwordInput').value;
+      if (!pw) return;
+      adminPassword = pw;
+      loadSubmissions();
+    }
+    function logout() {
+      adminPassword = '';
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'none';
+    }
+    document.getElementById('passwordInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+    async function loadSubmissions() {
+      try {
+        const res = await fetch('/admin/submissions', { headers: { 'x-admin-password': adminPassword } });
+        if (res.status === 401) { document.getElementById('loginError').style.display = 'block'; adminPassword = ''; return; }
+        const submissions = await res.json();
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        document.getElementById('totalCount').textContent = submissions.length;
+        document.getElementById('remainingCount').textContent = Math.max(0, 50 - submissions.length);
+        const grid = document.getElementById('submissionsGrid');
+        if (submissions.length === 0) {
+          grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🐋</div><p>No submissions yet. Share the form link with your selected creators.</p></div>';
+          return;
+        }
+        grid.innerHTML = submissions.map(s => `
+          <div class="sub-card">
+            <div class="sub-card-header">
+              <div><div class="sub-name">${escHtml(s.name)}</div><div class="sub-handle">@${escHtml(s.username.replace('@',''))}</div></div>
+            </div>
+            <div class="sub-card-body">
+              <span class="sub-niche">${escHtml(s.niche)}</span><br/>
+              <span class="sub-date">${new Date(s.submittedAt).toLocaleString()}</span>
+            </div>
+            <div class="sub-card-footer">
+              <button class="btn-download" onclick="downloadCard('${s.id}')">⬇ Download Card</button>
+            </div>
+          </div>`).join('');
+      } catch(err) { console.error(err); }
+    }
+    async function downloadCard(id) {
+      const res = await fetch(`/admin/card/${id}`, { headers: { 'x-admin-password': adminPassword } });
+      if (!res.ok) { alert('Card not found'); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `whalehub-${id}.png`; a.click();
+      URL.revokeObjectURL(url);
+    }
+    function escHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  </script>
+</body>
+  </html>
